@@ -20,8 +20,8 @@ public class Main {
 
         API OpenWeatherAPI;
         try {
-            OpenWeatherAPI = new API(ApiKey_OW, "http://api.openweathermap.org/geo/1.0/direct?q=London&limit=5&appid=%s");
-            System.out.println(OpenWeatherAPI.call("GET"));
+            OpenWeatherAPI = new API(ApiKey_OW, "http://api.openweathermap.org/geo/1.0/direct?q=London&limit=5&appid={API_KEY}");
+            System.out.println(OpenWeatherAPI.call("GET").GetData());
         } catch (IOException e) {
             System.err.println("Api call failed!");
             return;

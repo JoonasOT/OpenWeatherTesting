@@ -10,10 +10,11 @@ import java.net.URI;
 
 public class API {
     private Key key;
-    private URL url;
+    private final URL url;
     public API(Key API_key, String API_url) throws MalformedURLException {
         key = API_key;
-        url = URI.create(String.format(API_url, key.getKey())).toURL();
+        String urlName = API_url.replace("{API_KEY}", key.getKey());
+        url = URI.create(urlName).toURL();
     }
     public Response call(String method) throws IOException {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

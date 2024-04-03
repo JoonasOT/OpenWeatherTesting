@@ -9,11 +9,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
-import java.util.Base64;
 
 
 // https://stackoverflow.com/questions/59592205/java-encrypt-files-with-password
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Encryption {
     private static final int PBKDF2_ITERATION_COUNT = 300_000;
