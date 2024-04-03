@@ -11,10 +11,12 @@ public class OpenWeather {
     public static class Methods {
         public static final String WEATHER_LAT_LON = "weather:lat-long";
         public static final String WEATHER_CITY_NAME = "weather:city-name";
+        public static final String WEATHER_CITY_ID = "weather:city-id";
     }
     private static class URLs {
         private static final String WEATHER_LAT_LON = "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}";
         private static final String WEATHER_CITY_NAME = "https://api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key}";
+        private static final String WEATHER_CITY_ID = "https://api.openweathermap.org/data/2.5/weather?id={city id}&appid={API key}";
     }
     public static class Callables {
         public static API.callable WeatherLatLon(double lat, double lon) {
@@ -24,6 +26,10 @@ public class OpenWeather {
         public static API.callable WeatherCityName(String cityName) {
             return new API.callable(Methods.WEATHER_CITY_NAME,
                     Map.of("{city name}", cityName));
+        }
+        public static API.callable WeatherCityID(int cityID) {
+            return new API.callable(Methods.WEATHER_CITY_ID,
+                    Map.of("{city id}", Integer.toString(cityID)));
         }
     }
     public static class factory implements API_Factory {
@@ -41,8 +47,8 @@ public class OpenWeather {
             }
 
             // Add all the methods
-            urls.put(Methods.WEATHER_LAT_LON, API.addKey(URLs.WEATHER_LAT_LON, key));
-            urls.put(Methods.WEATHER_CITY_NAME, API.addKey(URLs.WEATHER_CITY_NAME, key));
+            urls.put(Methods.WEATHER_LAT_LON, URLs.WEATHER_LAT_LON);
+            urls.put(Methods.WEATHER_CITY_NAME, URLs.WEATHER_CITY_NAME);
         }
         @Override
         public API construct() throws MalformedURLException {
@@ -51,6 +57,11 @@ public class OpenWeather {
         @Override
         public Map<String, String> getURLs() {
             return urls;
+        }
+
+        @Override
+        public Key getKey() {
+            return key;
         }
     }
 }
