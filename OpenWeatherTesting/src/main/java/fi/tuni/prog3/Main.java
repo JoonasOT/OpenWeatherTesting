@@ -1,6 +1,9 @@
 package fi.tuni.prog3;
 
 import fi.tuni.prog3.API.API;
+import fi.tuni.prog3.API.OpenWeather;
+import fi.tuni.prog3.API.Response;
+import fi.tuni.prog3.security.Key;
 
 import java.io.IOException;
 
@@ -8,20 +11,11 @@ public class Main {
     public static void main(String[] args) {
         Key.encryptKey("secrets/OpenWeatherKey.json", "secrets/ApiKeys/OpenWeather");
 
-        Key ApiKey_OW;
-        try {
-            ApiKey_OW = new Key("ApiKeys/OpenWeather");
-        }
-        catch (IOException e) {
-            System.err.println("Key threw an error!");
-            e.printStackTrace(System.err);
-            return;
-        }
-
         API OpenWeatherAPI;
         try {
-            OpenWeatherAPI = new API(ApiKey_OW, "http://api.openweathermap.org/geo/1.0/direct?q=London&limit=5&appid={API_KEY}");
-            System.out.println(OpenWeatherAPI.call("GET").GetData());
+            OpenWeatherAPI = new OpenWeather.factory().construct();
+            Response response = OpenWeatherAPI.call(OpenWeather.Callables.WeatherCityName("Tampere"));
+            System.out.println(response.getData());
         } catch (IOException e) {
             System.err.println("Api call failed!");
             return;

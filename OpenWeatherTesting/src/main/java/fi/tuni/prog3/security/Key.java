@@ -1,13 +1,10 @@
-package fi.tuni.prog3;
+package fi.tuni.prog3.security;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import javax.crypto.AEADBadTagException;
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

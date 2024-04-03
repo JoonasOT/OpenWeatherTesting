@@ -1,4 +1,4 @@
-package fi.tuni.prog3;
+package fi.tuni.prog3.security;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

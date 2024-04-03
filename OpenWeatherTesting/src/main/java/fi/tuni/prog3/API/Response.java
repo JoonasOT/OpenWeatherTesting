@@ -3,7 +3,6 @@ package fi.tuni.prog3.API;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 
 public class Response {
@@ -37,11 +36,11 @@ public class Response {
         return HTTPS_CODE.getCode(statusCode) == HTTPS_CODE.SUCCESS;
     }
 
-    public int GetStatus() {
+    public int getStatus() {
         return statusCode;
     }
 
-    public String GetData() {
+    public String getData() {
         return data.toString();
     }
 }
