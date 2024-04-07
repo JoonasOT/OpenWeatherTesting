@@ -8,17 +8,24 @@ import static fi.tuni.prog3.API.OpenWeather.WeatherMap.URLs.OSM_MAP;
 import static fi.tuni.prog3.API.OpenWeather.WeatherMap.URLs.WEATHER_MAP;
 
 public class WeatherMap {
+    public enum WeatherLayer {
+        CLOUDS, PRECIPITATION, PRESSURE, WIND, TEMP;
+        @Override
+        public String toString() {
+            return name().toLowerCase() + "_new";
+        }
+    }
     public static class URLs {
         public static final String WEATHER_MAP = "https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}";
         public static final String OSM_MAP = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
     }
     public static class Callables {
-        public record WeatherMapCallable(String layerName, int z, double lat, double log) implements iCallable {
+        public record WeatherMapCallable(WeatherLayer layer, int z, double lat, double log) implements iCallable {
             @Override public String url() { return WEATHER_MAP; }
             @Override
             public Map<String, String> args() {
                 return Map.of(
-                        "{layer}", layerName,
+                        "{layer}", layer.toString(),
                         "{z}", Integer.toString(z),
                         "{x}", Integer.toString(longitudeToX(log, z)),
                         "{y}", Integer.toString(latitudeToY(lat, z)));
