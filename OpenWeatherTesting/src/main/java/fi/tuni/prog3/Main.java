@@ -44,6 +44,11 @@ public class Main {
             }
         }
 
+        System.out.println(IP);
+        System.out.println(city);
+        var city_res = cities.get(city);
+        city_res.ifPresent(System.out::println);
+
         var weather_res = OpenWeatherAPI.call(new WeatherForecastCityNameCallable(city));
         weather_res.ifPresent(response -> System.out.println(response.getData()));
     }

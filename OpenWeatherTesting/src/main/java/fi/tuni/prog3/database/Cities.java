@@ -2,7 +2,11 @@ package fi.tuni.prog3.database;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fi.tuni.prog3.API.API;
+import fi.tuni.prog3.API.API_Factory;
+import fi.tuni.prog3.API.iCallable;
 import fi.tuni.prog3.ReadWrite;
+import fi.tuni.prog3.security.Key;
 import fi.tuni.prog3.utils.EditDistance;
 
 import java.io.*;
@@ -138,17 +142,21 @@ public class Cities implements Database<List<Cities.City>> {
     }
     private boolean getCityListFromOpenWeatherBulk() {
         try {
-            URL url = URI.create(OPEN_WEATHER_BULK_CITY_URL).toURL();
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
+            API api = new API(new API_Factory() {
+                @Override public Key getKey() { return new Key(); }
+                @Override public API construct() { return new API(this); }
+            });
 
-            if (con.getResponseCode() / 100 != 2) return false;
+            var result = api.call(new iCallable() {
+                                @Override public String url() { return OPEN_WEATHER_BULK_CITY_URL; }
+                                @Override public Map<String, String> args() { return NO_ARGS; }
+            });
+
+            if (result.isEmpty()) return false;
 
             var fs = new FileOutputStream(cityListLocation);
-            fs.write(con.getInputStream().readAllBytes());
+            fs.write(result.get().getAllBytes());
             fs.close();
-
-            con.disconnect();
         } catch (IOException e) {
             return false;
         }

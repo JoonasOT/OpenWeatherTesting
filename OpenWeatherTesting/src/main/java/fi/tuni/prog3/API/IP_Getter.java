@@ -12,7 +12,7 @@ public class IP_Getter {
         private static final String IP_ECHO = "https://ipecho.net/plain";
     }
     public static class Callables {
-        public record IP_BASE_CALLABLE(String method, Map<String, String> args) implements iCallable {};
+        public record IP_BASE_CALLABLE(String url, Map<String, String> args) implements iCallable {};
         public static iCallable IP_AWS() { return new IP_BASE_CALLABLE(URLs.IP_AWS, iCallable.NO_ARGS); }
         public static iCallable IP_HAZIP() {
             return new IP_BASE_CALLABLE(URLs.IP_HAZ, iCallable.NO_ARGS);

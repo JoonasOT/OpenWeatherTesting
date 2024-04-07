@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 
 public class Response {
     private int statusCode;
     private boolean ok = true;
-    private StringBuilder data = new StringBuilder();
+    private String data = "";
+    private byte[] bytes = null;
     public Response(HttpURLConnection connection) {
         try {
             statusCode = connection.getResponseCode();
@@ -19,14 +21,14 @@ public class Response {
         getData(connection);
     }
     private void getData(HttpURLConnection connection) {
-        try (var dataStream = new BufferedReader(new InputStreamReader(CallWasOK() ?
-                                                        connection.getInputStream() :
-                                                        connection.getErrorStream()))){
-            String inputLine;
-            while ((inputLine = dataStream.readLine()) != null) {
-                data.append(inputLine);
-            }
+
+        try (var stream = CallWasOK() ? connection.getInputStream() : connection.getErrorStream()){
+            bytes = stream.readAllBytes();
+            data = new String(bytes, StandardCharsets.UTF_8).replace("\n", "");
         } catch (Exception ignored) {}
+    }
+    public byte[] getAllBytes() {
+        return bytes;
     }
 
     public boolean ConnectionIsOk() {
@@ -41,6 +43,6 @@ public class Response {
     }
 
     public String getData() {
-        return data.toString();
+        return data;
     }
 }

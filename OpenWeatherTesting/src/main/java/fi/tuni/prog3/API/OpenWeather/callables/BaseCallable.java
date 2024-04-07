@@ -14,7 +14,7 @@ public class BaseCallable implements iCallable {
         this.args = new HashMap<>(args);
     }
     @Override
-    public String method() {
+    public String url() {
         return url;
     }
 

@@ -27,7 +27,8 @@ public class MaxMindGeoIP2 implements Database<MaxMindGeoIP2.GeoLocation> {
             return Optional.of(new GeoLocation(res.getCountry(), res.getCity()));
         }
         catch (IOException | GeoIp2Exception e) {
-            System.err.println(e.toString());
+            System.err.println(e.getMessage());
+            e.printStackTrace(System.err);
             return Optional.empty();
         }
     }

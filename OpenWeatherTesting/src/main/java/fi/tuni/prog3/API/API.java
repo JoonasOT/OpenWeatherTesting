@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,7 +18,7 @@ public class API {
     }
     public Optional<Response> call(iCallable callable) {
         try {
-            String url_ = addArgs(callable.method(), callable.args());
+            String url_ = addArgs(callable.url(), callable.args());
 
             URL url = URI.create(API.addKey(url_, key)).toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
