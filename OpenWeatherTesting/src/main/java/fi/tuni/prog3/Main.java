@@ -12,10 +12,10 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Database cities = new Cities.Builder().setLocation("FI").setCityListTo("./db/Cities/city.list.alt.json.gz")
-                                              .setOptimisedCityListLocationTo("./db/Cities/cities_optimised_load.alt")
+        Database cities = new Cities.Builder().setLocation("FI").setCityListTo("./db/Cities/city.list.json.gz")
+                                              .setOptimisedCityListLocationTo("./db/Cities/cities_optimised_load")
                                               .build();
-        var r = cities.get("seinäjoki");
+        var r = cities.get("Tamper");
         r.ifPresent(System.out::println);
         if(true) return;
 

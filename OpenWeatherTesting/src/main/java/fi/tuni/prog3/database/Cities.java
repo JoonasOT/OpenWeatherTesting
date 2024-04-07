@@ -2,8 +2,6 @@ package fi.tuni.prog3.database;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fi.tuni.prog3.API.API;
-import fi.tuni.prog3.API.Response;
 import fi.tuni.prog3.ReadWrite;
 import fi.tuni.prog3.utils.EditDistance;
 
@@ -13,7 +11,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.zip.GZIPOutputStream;
 
 public class Cities implements Database<List<Cities.City>> {
     public interface SetOptionalFields {
@@ -104,6 +101,7 @@ public class Cities implements Database<List<Cities.City>> {
         Gson gson = new Gson();
         List<String> lines = content.lines().toList();
         cityArr = new City[lines.size()];
+
         for (int i : IntStream.range(0, cityArr.length).toArray()) {
             cityArr[i] = gson.fromJson(lines.get(i), City.class);
         }
@@ -166,7 +164,8 @@ public class Cities implements Database<List<Cities.City>> {
         return ReadWrite.write(cityListOptimisedLocation, content.substring(0, content.length() - 1));
     }
     private int[] calculateEditDistance(String word) {
-        String[] words = (String[]) Arrays.stream(cityArr).map(City::name).toArray();
+        String[] words = new String[cityArr.length];
+        Arrays.stream(cityArr).map(City::name).toList().toArray(words);
         try {
             return EditDistance.calculateDistancesParallel(words, word);
         } catch (RuntimeException e) {
