@@ -1,8 +1,10 @@
 package fi.tuni.prog3.API.OpenWeather;
 
 import com.google.gson.Gson;
-import fi.tuni.prog3.API.API;
 import fi.tuni.prog3.API.OpenWeather.JSON_OBJs.*;
+import fi.tuni.prog3.API.OpenWeather.callables.CityNameCallable;
+import fi.tuni.prog3.API.OpenWeather.callables.LatLonCallable;
+import fi.tuni.prog3.API.OpenWeather.callables.ZipCodeCallable;
 
 import java.util.List;
 import java.util.Map;
@@ -21,22 +23,26 @@ public class WeatherForecast {
         Gson gson = new Gson();
         return gson.fromJson(json, JSON_OBJ.class);
     }
-    public static class Methods {
-        public static final String WEATHER_LAT_LON = "weather-forecast:lat-long";
-        public static final String WEATHER_CITY_NAME = "weather-forecast:city-name";
-    }
     public static class URLs {
         public static final String WEATHER_LAT_LON = "https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}";
         public static final String WEATHER_CITY_NAME = "https://api.openweathermap.org/data/2.5/forecast?q={city name}&appid={API key}";
+        public static final String WEATHER_ZIP_CODE = "https://api.openweathermap.org/data/2.5/forecast?zip={zip code}&appid={API key}";
     }
     public static class Callables {
-        public static API.callable WeatherLatLon(double lat, double lon) {
-            return new API.callable(WeatherForecast.Methods.WEATHER_LAT_LON,
-                    Map.of("{lat}", Double.toString(lat), "{lon}", Double.toString(lon)));
-        }
-        public static API.callable WeatherCityName(String cityName) {
-            return new API.callable(WeatherForecast.Methods.WEATHER_CITY_NAME,
-                    Map.of("{city name}", cityName));
-        }
+        public static class WeatherForecastLatLonCallable extends LatLonCallable {
+            public WeatherForecastLatLonCallable(double lat, double lon) {
+                super(URLs.WEATHER_LAT_LON, lat, lon);
+            }
+        };
+        public static class WeatherForecastCityNameCallable extends CityNameCallable {
+            public WeatherForecastCityNameCallable(String cityName) {
+                super(URLs.WEATHER_CITY_NAME, cityName);
+            }
+        };
+        public static class WeatherForecastZipCodeCallable extends ZipCodeCallable {
+            public WeatherForecastZipCodeCallable(int zipCode) {
+                super(URLs.WEATHER_ZIP_CODE, zipCode);
+            }
+        };
     }
 }

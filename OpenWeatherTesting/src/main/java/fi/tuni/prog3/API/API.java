@@ -13,17 +13,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class API {
-    public record callable(String method, Map<String, String> args) {}
-    public static HashMap<String, String> NO_ARGS = new HashMap<>();
-    private final HashMap<String, String> urls;
     private final Key key;
     public API(API_Factory factory) {
-        urls = new HashMap<>(factory.getURLs());
         key = factory.getKey();
     }
-    public Optional<Response> call(callable callable) {
+    public Optional<Response> call(iCallable callable) {
         try {
-            String url_ = addArgs(urls.get(callable.method), callable.args);
+            String url_ = addArgs(callable.method(), callable.args());
 
             URL url = URI.create(API.addKey(url_, key)).toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();

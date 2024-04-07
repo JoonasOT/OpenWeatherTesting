@@ -5,14 +5,26 @@ import fi.tuni.prog3.API.API_Factory;
 import fi.tuni.prog3.security.Key;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OpenWeather {
+    public enum UNIT {
+        STANDARD, METRIC, IMPERIAL;
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+    public enum LANG {
+        AF, AL, AR, AZ, BG, CA, CZ, DA, DE, EL, EN, EU, FA, FI, FR, GL, HE, HI, HR, HU, ID, IT, JA, KR, LA, LT, MK, NO,
+        NL, PL, PT, PT_BR, RO, RU, SV, SE, SK, SL, SP, ES, SR, TH, TR, UA, UK, VI, ZH_CN, ZH_TW, ZU;
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
 
     public static class factory implements API_Factory {
         private Key key = null;
-        private final HashMap<String, String> urls = new HashMap<>();
         public factory() {
             // Get the key
             try {
@@ -21,23 +33,11 @@ public class OpenWeather {
             catch (IOException e) {
                 System.err.println("Key threw an error!");
                 e.printStackTrace(System.err);
-                return;
             }
-
-            // Add all the methods
-            urls.put(CurrentWeather.Methods.WEATHER_LAT_LON, CurrentWeather.URLs.WEATHER_LAT_LON);
-            urls.put(CurrentWeather.Methods.WEATHER_CITY_NAME, CurrentWeather.URLs.WEATHER_CITY_NAME);
-
-            urls.put(WeatherForecast.Methods.WEATHER_LAT_LON, WeatherForecast.URLs.WEATHER_LAT_LON);
-            urls.put(WeatherForecast.Methods.WEATHER_CITY_NAME, WeatherForecast.URLs.WEATHER_CITY_NAME);
         }
         @Override
         public API construct() {
             return new API(this);
-        }
-        @Override
-        public Map<String, String> getURLs() {
-            return urls;
         }
 
         @Override
