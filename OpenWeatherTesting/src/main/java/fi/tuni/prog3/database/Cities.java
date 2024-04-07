@@ -3,6 +3,7 @@ package fi.tuni.prog3.database;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fi.tuni.prog3.ReadWrite;
+import fi.tuni.prog3.utils.EditDistance;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -131,49 +132,12 @@ public class Cities implements Database<List<Cities.City>> {
         }
         return ReadWrite.write(cityListOptimisedLocation, content.substring(0, content.length() - 1));
     }
-    private record EditDistanceTask(String want, String attempt) implements Callable<Integer> {
-        private int compareCharIgnoreCase(char a, char b) {
-            return Character.compare(Character.toUpperCase(a), Character.toUpperCase(b));
-        }
-
-        @Override
-        public Integer call() {
-            if (Math.min(want.length(), attempt.length()) == 0) {
-                return Math.max(want.length(), attempt.length());
-            }
-
-            int[][] matrix = new int[want.length() + 1][attempt.length() + 1];
-
-            for (int i : IntStream.range(1, want.length() + 1).toArray()) matrix[i][0] = i;
-            for (int i : IntStream.range(1, attempt.length() + 1).toArray()) matrix[0][i] = i;
-            matrix[0][0] = 0;
-
-            for (int x : IntStream.range(0, want.length()).toArray()) {
-                for (int y : IntStream.range(0, attempt.length()).toArray()) {
-                    int min = IntStream.of(matrix[x][y], matrix[x + 1][y], matrix[x][y + 1]).min().getAsInt();
-                    matrix[x + 1][y + 1] = compareCharIgnoreCase(want.charAt(x), attempt.charAt(y)) == 0 ? min : min + 1;
-                }
-            }
-            return matrix[want.length()][attempt.length()];
-        }
-    }
     private int[] calculateEditDistance(String word) {
-        List<EditDistanceTask> tasks = Arrays.stream(cityArr).map(city -> new EditDistanceTask(city.name, word)).toList();
-        List<Future<Integer>> futures;
+        String[] words = (String[]) Arrays.stream(cityArr).map(City::name).toArray();
         try {
-            ExecutorService executor = Executors.newFixedThreadPool(3);
-            futures = executor.invokeAll(tasks);
-            int[] res = futures.stream().mapToInt(f -> {
-                try {
-                    return f.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            }).toArray();
-            executor.shutdown();
-            return res;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            return EditDistance.calculateDistancesParallel(words, word);
+        } catch (RuntimeException e) {
+            return EditDistance.calculateDistances(words, word);
         }
     }
     private double[] addCountryBias(int[] original) {
