@@ -12,8 +12,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Database cities = new Cities.Builder().setLocation("FI").setCityListTo("./db/Cities/city.list.json.gz")
-                                              .setOptimisedCityListLocationTo("./db/Cities/cities_optimised_load")
+        Database cities = new Cities.Builder().setLocation("FI").setCityListTo("./db/Cities/city.list.alt.json.gz")
+                                              .setOptimisedCityListLocationTo("./db/Cities/cities_optimised_load.alt")
                                               .build();
         var r = cities.get("seinäjoki");
         r.ifPresent(System.out::println);

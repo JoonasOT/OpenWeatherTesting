@@ -2,13 +2,18 @@ package fi.tuni.prog3.database;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fi.tuni.prog3.API.API;
+import fi.tuni.prog3.API.Response;
 import fi.tuni.prog3.ReadWrite;
 import fi.tuni.prog3.utils.EditDistance;
 
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.zip.GZIPOutputStream;
 
 public class Cities implements Database<List<Cities.City>> {
     public interface SetOptionalFields {
@@ -50,12 +55,13 @@ public class Cities implements Database<List<Cities.City>> {
         }
     }
     public static int MAX_CITIES_RETURNED = 5;
+    public static String OPEN_WEATHER_BULK_CITY_URL = "https://bulk.openweathermap.org/sample/city.list.json.gz";
     public record City(String name, String countryCode) {};
-    public record CityJSON(int id, String name, String state, String country, HashMap<String, Double> coord) {}
     private final String location;
     private final String cityListLocation;
     private final String cityListOptimisedLocation;
-    private final City[] cityArr;
+    private City[] cityArr;
+    private final boolean wasAbleToLoad;
     public Cities(Builder builder) {
         location = builder.location;
         cityListLocation = builder.cityListLocation;
@@ -63,36 +69,16 @@ public class Cities implements Database<List<Cities.City>> {
 
         var attemptOptimised = ReadWrite.read(cityListOptimisedLocation);
 
-        if (attemptOptimised.isPresent()) {
-            Gson gson = new Gson();
-            List<String> lines = attemptOptimised.get().lines().toList();
-            cityArr = new City[lines.size()];
-            for (int i : IntStream.range(0, cityArr.length).toArray()) {
-                cityArr[i] = gson.fromJson(lines.get(i), City.class);
-            }
+        if (attemptOptimised.isPresent() && loadFromOptimised(attemptOptimised.get())) {
+            wasAbleToLoad = true;
         } else {
-
-            CityJSON[] cities = getCitiesInitial();
-
-            if(cities == null) {
-                System.err.println("Cities is null! -> Gson conversion failed!");
-                cityArr = null;
-                return;
-            }
-            Set<City> citySet = Arrays.stream(cities).map(c -> new City(c.name(), c.country())).collect(Collectors.toSet());
-            cityArr = new City[citySet.size()];
-            int i = 0;
-            for (City c : citySet) {
-                cityArr[i] = c;
-                i++;
-            }
-            if (!saveOptimisedCityList()) {
-                System.err.println("Was un able to save the optimised version of the city list!");
-            }
+            wasAbleToLoad = loadFromFallback(true);
         }
     }
     @Override
     public Optional<List<City>> get(String query) {
+        if (!wasAbleToLoad) return Optional.empty();
+
         {
             List<City> init = Arrays.stream(cityArr).filter(city -> city.name.equalsIgnoreCase(query)).toList();
 
@@ -114,15 +100,62 @@ public class Cities implements Database<List<Cities.City>> {
 
         return Optional.of(Arrays.stream(intermediate).map(CityWithWeight::city).toList().subList(0, max));
     }
-    private CityJSON[] getCitiesInitial() {
+    private boolean loadFromOptimised(String content) {
+        Gson gson = new Gson();
+        List<String> lines = content.lines().toList();
+        cityArr = new City[lines.size()];
+        for (int i : IntStream.range(0, cityArr.length).toArray()) {
+            cityArr[i] = gson.fromJson(lines.get(i), City.class);
+        }
+        return true;
+    }
+    private boolean loadFromFallback(boolean isInitialAttempt) {
+        record CityJSON(int id, String name, String state, String country, HashMap<String, Double> coord) {}
+
         String content;
         {
             var tmp = ReadWrite.readGZ(cityListLocation);
             if (tmp.isPresent()) content = tmp.get();
-            else { System.err.println("Unable to get city.list.json"); return null; }
+            else { System.err.println("Unable to get city.list.json"); return getCityListFromOpenWeatherBulk(); }
         }
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-        return gson.fromJson(content, CityJSON[].class);
+        CityJSON[] cities = gson.fromJson(content, CityJSON[].class);
+
+        if(cities == null) {
+            System.err.println("Cities is null! -> Gson conversion failed!");
+            cityArr = null;
+            return isInitialAttempt && getCityListFromOpenWeatherBulk();
+        }
+        Set<City> citySet = Arrays.stream(cities).map(c -> new City(c.name(), c.country())).collect(Collectors.toSet());
+        cityArr = new City[citySet.size()];
+        int i = 0;
+        for (City c : citySet) {
+            cityArr[i] = c;
+            i++;
+        }
+        if (!saveOptimisedCityList()) {
+            System.err.println("Was un able to save the optimised version of the city list!");
+        }
+        return true;
+    }
+    private boolean getCityListFromOpenWeatherBulk() {
+        try {
+            URL url = URI.create(OPEN_WEATHER_BULK_CITY_URL).toURL();
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+
+            if (con.getResponseCode() / 100 != 2) return false;
+
+            var fs = new FileOutputStream(cityListLocation);
+            fs.write(con.getInputStream().readAllBytes());
+            fs.close();
+
+            con.disconnect();
+        } catch (IOException e) {
+            return false;
+        }
+
+        return loadFromFallback(false);
     }
     private boolean saveOptimisedCityList() {
         Gson gson = new Gson();
