@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class API {
@@ -20,16 +21,20 @@ public class API {
         urls = new HashMap<>(factory.getURLs());
         key = factory.getKey();
     }
-    public Response call(callable callable) throws IOException {
-        String url_ = addArgs(urls.get(callable.method), callable.args);
+    public Optional<Response> call(callable callable) {
+        try {
+            String url_ = addArgs(urls.get(callable.method), callable.args);
 
-        URL url = URI.create(API.addKey(url_, key)).toURL();
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+            URL url = URI.create(API.addKey(url_, key)).toURL();
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
 
-        Response response = new Response(con);
-        con.disconnect();
-        return response;
+            Response response = new Response(con);
+            con.disconnect();
+            return Optional.of(response);
+        } catch (IOException ignored) {
+            return Optional.empty();
+        }
     }
     private static String addKey(String url, Key key) {
         return url.replace("{API key}", key.getKey());
