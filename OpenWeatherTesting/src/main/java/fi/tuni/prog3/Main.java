@@ -2,13 +2,13 @@ package fi.tuni.prog3;
 
 import fi.tuni.prog3.API.API;
 import fi.tuni.prog3.API.IP_Getter;
-import fi.tuni.prog3.API.OpenWeather;
-import fi.tuni.prog3.API.Response;
+import fi.tuni.prog3.API.OpenWeather.CurrentWeather;
+import fi.tuni.prog3.API.OpenWeather.OpenWeather;
+import fi.tuni.prog3.API.OpenWeather.WeatherForecast;
 import fi.tuni.prog3.database.Cities;
 import fi.tuni.prog3.database.MaxMindGeoIP2;
 import fi.tuni.prog3.database.Database;
 
-import java.io.IOException;
 import java.util.List;
 
 import fi.tuni.prog3.database.Cities.City;
@@ -43,7 +43,7 @@ public class Main {
             }
         }
 
-        var weather_res = OpenWeatherAPI.call(OpenWeather.Callables.WeatherCityName(city));
+        var weather_res = OpenWeatherAPI.call(WeatherForecast.Callables.WeatherCityName(city));
         weather_res.ifPresent(response -> System.out.println(response.getData()));
     }
 }
