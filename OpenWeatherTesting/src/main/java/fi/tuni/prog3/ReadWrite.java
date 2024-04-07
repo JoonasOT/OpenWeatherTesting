@@ -15,6 +15,16 @@ public class ReadWrite {
         }
         return true;
     }
+    public static boolean write(String where, byte[] what) {
+        try(var fs = new FileOutputStream(where)) {
+            fs.write(what);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace(System.err);
+            return false;
+        }
+        return true;
+    }
     public static Optional<String> read(String where) {
         StringBuilder content = new StringBuilder();
         try (var bf = new BufferedReader(new FileReader(where))) {

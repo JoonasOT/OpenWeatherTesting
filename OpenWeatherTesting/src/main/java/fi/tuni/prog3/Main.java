@@ -3,12 +3,14 @@ package fi.tuni.prog3;
 import fi.tuni.prog3.API.API;
 import fi.tuni.prog3.API.IP_Getter;
 import fi.tuni.prog3.API.OpenWeather.OpenWeather;
+import fi.tuni.prog3.API.OpenWeather.WeatherMap;
 import fi.tuni.prog3.database.Cities;
 import fi.tuni.prog3.database.MaxMindGeoIP2;
 import fi.tuni.prog3.database.Database;
 
 import fi.tuni.prog3.API.OpenWeather.CurrentWeather.Callables.*;
 import fi.tuni.prog3.API.OpenWeather.WeatherForecast.Callables.*;
+import fi.tuni.prog3.API.OpenWeather.WeatherMap.Callables.*;
 
 import java.util.List;
 
@@ -49,7 +51,11 @@ public class Main {
         var city_res = cities.get(city);
         city_res.ifPresent(System.out::println);
 
-        var weather_res = OpenWeatherAPI.call(new WeatherForecastCityNameCallable(city));
-        weather_res.ifPresent(response -> System.out.println(response.getData()));
+        // var weather_res = OpenWeatherAPI.call(new WeatherForecastCityNameCallable(city));
+        // weather_res.ifPresent(response -> System.out.println(response.getData()));
+        var map_res = OpenWeatherAPI.call(new WeatherMapCallable("precipitation_new", 6, 61.49911, 23.78712));
+        // var map_res = OpenWeatherAPI.call(new OpenStreetMapCallable("GitHub-JoonasOT-OpenWeatherTesting", 6, 61.49911, 23.78712));
+        map_res.ifPresent(response -> System.out.println(response.getData()));
+        map_res.ifPresent(response -> ReadWrite.write("test.png", response.getAllBytes()));
     }
 }

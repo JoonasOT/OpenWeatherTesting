@@ -1,6 +1,9 @@
 package fi.tuni.prog3.API;
 
+import fi.tuni.prog3.API.OpenWeather.WeatherMap;
 import fi.tuni.prog3.security.Key;
+
+import fi.tuni.prog3.API.OpenWeather.WeatherMap.Callables.OpenStreetMapCallable;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -23,6 +26,11 @@ public class API {
             URL url = URI.create(API.addKey(url_, key)).toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
+
+            try {
+                con.setRequestProperty("User-Agent", ((OpenStreetMapCallable) callable).userAgent());
+            } catch (Exception ignored) {}
+
 
             Response response = new Response(con);
             con.disconnect();
