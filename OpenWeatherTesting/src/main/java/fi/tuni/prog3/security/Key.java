@@ -11,8 +11,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class Key {
     private static String password = "njeå £mwe8r 0qp9å0ë @$@}";
     public static String SECRET_LOCATION = "secrets/";
-    private String id = null;
-    private String key = null;
+    private String id = "";
+    private String key = "";
 
     public Key(String file) throws IOException, SecurityException {
         String decryptedString;
@@ -28,6 +28,10 @@ public class Key {
         Key fromJson = gson.fromJson(decryptedString, new TypeToken<Key>(){}.getType());
         id = fromJson.id;
         key = fromJson.key;
+    }
+    public Key() {
+        id = "Unknown";
+        key = "N/A";
     }
     public String getKey() { return key; }
 

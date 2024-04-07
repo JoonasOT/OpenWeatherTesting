@@ -49,9 +49,10 @@ public class OpenWeather {
             // Add all the methods
             urls.put(Methods.WEATHER_LAT_LON, URLs.WEATHER_LAT_LON);
             urls.put(Methods.WEATHER_CITY_NAME, URLs.WEATHER_CITY_NAME);
+            urls.put(Methods.WEATHER_CITY_ID, URLs.WEATHER_CITY_ID);
         }
         @Override
-        public API construct() throws MalformedURLException {
+        public API construct() {
             return new API(this);
         }
         @Override
