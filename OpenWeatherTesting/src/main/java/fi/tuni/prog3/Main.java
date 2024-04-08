@@ -3,20 +3,16 @@ package fi.tuni.prog3;
 import fi.tuni.prog3.API.API;
 import fi.tuni.prog3.API.IP_Getter;
 import fi.tuni.prog3.API.OpenWeather.OpenWeather;
-import fi.tuni.prog3.API.OpenWeather.WeatherMap;
-import fi.tuni.prog3.database.Cities;
-import fi.tuni.prog3.database.MaxMindGeoIP2;
 import fi.tuni.prog3.database.Database;
-import fi.tuni.prog3.API.OpenWeather.WeatherMap.WeatherLayer;
-
-import fi.tuni.prog3.API.OpenWeather.CurrentWeather.Callables.*;
-import fi.tuni.prog3.API.OpenWeather.WeatherForecast.Callables.*;
-import fi.tuni.prog3.API.OpenWeather.WeatherMap.Callables.*;
 
 import java.util.List;
 
-import fi.tuni.prog3.database.Cities.City;
+import fi.tuni.prog3.database.cities.Cities.City;
+import fi.tuni.prog3.database.cities.builder.CityBuilder;
+import fi.tuni.prog3.database.MaxMindGeoIP2;
 import fi.tuni.prog3.database.MaxMindGeoIP2.GeoLocation;
+import fi.tuni.prog3.API.OpenWeather.WeatherMap.Callables.*;
+import fi.tuni.prog3.API.OpenWeather.WeatherMap.WeatherLayer;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,12 +22,12 @@ public class Main {
         API IP_API = new IP_Getter.factory().construct();
         API OpenWeatherAPI = new OpenWeather.factory().construct();
 
-        Database<List<City>> cities = new Cities.Builder()
-                                                .setLocation("FI")
-                                                .setCityListTo("./db/Cities/city.list.json.gz")
-                                                .setOptimisedCityListLocationTo("./db/Cities/cities_optimised_load")
-                                                .build();
-
+        Database<List<City>> cities = new CityBuilder()
+                                            .setLocation("FI")
+                                            .setDatabaseLocation("./db/Cities")
+                                            .build();
+        var r = cities.get("seinäjoki");
+        r.ifPresent(System.out::println);
         Database<GeoLocation> GeoIP = new MaxMindGeoIP2("./db/GeoLite2-City_20240402/GeoLite2-City.mmdb");
 
 
@@ -57,7 +53,8 @@ public class Main {
         var map_res = OpenWeatherAPI.call(new WeatherMapCallable(WeatherLayer.PRECIPITATION, 12, 61.49911, 23.78712));
         map_res.ifPresent(response -> System.out.println(response.getData()));
         map_res.ifPresent(response -> ReadWrite.write("weather.png", response.getAllBytes()));
-        map_res = OpenWeatherAPI.call(new OpenStreetMapCallable("GitHub-JoonasOT-OpenWeatherTesting", 12, 61.49911, 23.78712));
+
+        map_res = OpenWeatherAPI.call(new OpenStreetMapCallable("GitHub-JoonasOT-OpenWeatherTesting/2.0", 12, 61.49911, 23.78712));
         map_res.ifPresent(response -> System.out.println(response.getData()));
         map_res.ifPresent(response -> ReadWrite.write("map.png", response.getAllBytes()));
     }
