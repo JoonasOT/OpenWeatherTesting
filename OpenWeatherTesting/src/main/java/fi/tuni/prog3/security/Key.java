@@ -5,20 +5,34 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Key {
-    private static String password = "njeå £mwe8r 0qp9å0ë @$@}";
     public static String SECRET_LOCATION = "secrets/";
     private String id = "";
     private String key = "";
-
+    private static String generatePassword(String gen) {
+        byte[] ba = gen.getBytes();
+        assert !gen.isEmpty();
+        byte x = (byte) (gen.chars().reduce((l, r) -> l ^ r).getAsInt() / (int)(Math.pow(2, Byte.SIZE) - 1));
+        for (int i : IntStream.range(0, ba.length).toArray()) ba[i] ^= x;
+        return new String(ba);
+    }
     public Key(String file) throws IOException, SecurityException {
         String decryptedString;
         try {
             var in = new FileInputStream(SECRET_LOCATION + file);
-            decryptedString = new String(Encryption.decryptAES256(in.readAllBytes(), password), UTF_8);
+            var t = Files.readAttributes(Path.of(SECRET_LOCATION + file), BasicFileAttributes.class)
+                    .lastModifiedTime();
+            decryptedString = new String(Encryption.decryptAES256(in.readAllBytes(), generatePassword(
+                                            t.toString().substring(0, 18))), UTF_8);
             in.close();
         } catch (RuntimeException e) {
             throw new SecurityException(e);
@@ -44,8 +58,14 @@ public class Key {
             while ( (tmp = in.readLine()) != null ) {
                 content.append(tmp);
             }
+
             byte[] encrypted_content = Encryption.encryptAES256(content.toString()
-                                                .getBytes(StandardCharsets.UTF_8), password);
+                                                .getBytes(StandardCharsets.UTF_8),
+                                                generatePassword(
+                                                        FileTime.fromMillis(System.currentTimeMillis()).toString()
+                                                        .substring(0, 18)
+                                                )
+            );
             out.write(encrypted_content);
         } catch(IOException e) { return false; }
         return true;

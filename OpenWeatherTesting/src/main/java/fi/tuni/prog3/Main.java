@@ -14,10 +14,10 @@ import fi.tuni.prog3.database.MaxMindGeoIP2.GeoLocation;
 import fi.tuni.prog3.API.OpenWeather.WeatherMap.Callables.*;
 import fi.tuni.prog3.API.OpenWeather.WeatherMap.WeatherLayer;
 
+
 public class Main {
     public static void main(String[] args) {
         // Key.encryptKey("secrets/OpenWeatherKey.json", "secrets/ApiKeys/OpenWeather");
-
 
         API IP_API = new IP_Getter.factory().construct();
         API OpenWeatherAPI = new OpenWeather.factory().construct();
@@ -26,8 +26,7 @@ public class Main {
                                             .setLocation("FI")
                                             .setDatabaseLocation("./db/Cities")
                                             .build();
-        var r = cities.get("seinäjoki");
-        r.ifPresent(System.out::println);
+
         Database<GeoLocation> GeoIP = new MaxMindGeoIP2("./db/GeoLite2-City_20240402/GeoLite2-City.mmdb");
 
 
