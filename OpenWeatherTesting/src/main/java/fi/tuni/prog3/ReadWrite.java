@@ -37,7 +37,7 @@ public class ReadWrite {
             e.printStackTrace(System.err);
             return Optional.empty();
         }
-        return Optional.of(content.toString());
+        return Optional.of(content.substring(0, content.length() - 1));
     }
     public static Optional<String> readGZ(String where) {
         StringBuilder content = new StringBuilder();
